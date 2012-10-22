@@ -291,7 +291,7 @@ class Graph extends PApplet
 
       if (maxY < y[i])
       {
-
+    	  	//TODO Change so the maximum is measured outside this class.
         maxY =y[i];
         maxI = i;
       }

@@ -3,19 +3,21 @@ package controller;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
+import processing.serial.Serial;
 
 public class GraphMain extends PApplet implements gestureAPI {
-
+	
+	ArrayList<SerialLink> devices = new ArrayList<SerialLink>();
+	SerialLink link;
+	
 	Graph MyArduinoGraph = new Graph(150, 80, 500, 300, color (200, 20, 20));
-	float[] gestureOne=null;
+	float[] gestureOne=null; //TODO remove when done with multi
 	float[] gestureTwo = null;
 	float[] gestureThree = null;
 
-	float[][] gesturePoints = new float[4][2];
-	float[] gestureDist = new float[4];
-	String[] names = {"Nothing", "Leaf 1", "Leaf 2","Branch"};
-
-	SerialLink link;
+	float[][] gesturePoints = new float[4][2]; //TODO finish multi and remove
+	float[] gestureDist = new float[4]; //TODO finish multi and remove
+	String[] names = {"Nothing", "Leaf 1", "Leaf 2","Branch"}; //TODO finish multi and remove
 
 
 	public void setup() {
@@ -26,16 +28,18 @@ public class GraphMain extends PApplet implements gestureAPI {
 		MyArduinoGraph.yLabel="Amp";
 		MyArduinoGraph.Title=" Graph";  
 		noLoop();
+		
 		int portSelected=2;      
 		/* ====================================================================
-	   adjust this (0,1,2...) until the correct port is selected 
-	   In my case 2 for COM4, after I look at the Serial.list() string 
-	   println( Serial.list() );
-	   [0] "COM1"  
-	   [1] "COM2" 
-	   [2] "COM4"
-	   ==================================================================== */
-		link = new SerialLink(this, portSelected);     
+		 * adjust this (0,1,2...) until the correct port is selected 
+		 * In my case 2 for COM4, after I look at the Serial.list() string 
+		 * println( Serial.list() );
+		 * [0] "COM1"  
+		 * [1] "COM2" 
+		 * [2] "COM4"
+		 * ==================================================================== */
+		println(Serial.list());
+		link = new SerialLink(this, portSelected); //TODO integrate into multi    
 	}
 
 
@@ -44,22 +48,18 @@ public class GraphMain extends PApplet implements gestureAPI {
 		background(255);
 
 		/* Print the graph */
-
+		//TODO add for loop and do this for every input
 		if ( link.DataReceived3 ) {
 			float[] t3 = toPrimitiveFloatArray(link.Time3);
 			pushMatrix();
 			pushStyle();
-			MyArduinoGraph.yMax=1000;      
+			MyArduinoGraph.yMax=1000; //TODO totally arbitrary values. What's the point      
 			MyArduinoGraph.yMin=-200;      
 			MyArduinoGraph.xMax=(int) (max(t3));
 			MyArduinoGraph.DrawAxis();    
 			MyArduinoGraph.smoothLine(t3, toPrimitiveFloatArray(link.Voltage3));
 			popStyle();
 			popMatrix();
-
-			float gestureOneDiff =0;
-			float gestureTwoDiff =0;
-			float gestureThreeDiff =0;
 
 			/* Gesture compare */
 			float totalDist = 0;
@@ -70,7 +70,7 @@ public class GraphMain extends PApplet implements gestureAPI {
 				if (mousePressed && mouseX > 750 && mouseX<800 && mouseY > 100*(i+1) && mouseY < 100*(i+1) + 50)
 				{
 					fill(255, 0, 0);
-
+					//TODO Change so that maximum is measured in this class.
 					gesturePoints[i][0] = link.Time3.get(MyArduinoGraph.maxI);
 					gesturePoints[i][1] = link.Voltage3.get(MyArduinoGraph.maxI);
 				} else {
@@ -78,7 +78,7 @@ public class GraphMain extends PApplet implements gestureAPI {
 				}
 
 				//calucalte individual dist
-				gestureDist[i] = dist(
+				gestureDist[i] = dist( //TODO move into public function in class TouchDevice
 						link.Time3.get(MyArduinoGraph.maxI),
 						link.Voltage3.get(MyArduinoGraph.maxI), 
 						gesturePoints[i][0], 
@@ -110,6 +110,14 @@ public class GraphMain extends PApplet implements gestureAPI {
 
 		}
 	}
+
+	public void stop()
+	{
+
+		link.myPort.stop();
+		super.stop();
+	}
+	
 	/**
 	 * Helper function because of Java's type system.
 	 * @param a The ArrayList to be converted
@@ -125,29 +133,22 @@ public class GraphMain extends PApplet implements gestureAPI {
 		}
 		return permArray;
 	}
-
-	public void stop()
-	{
-
-		link.myPort.stop();
-		super.stop();
+	
+	/**
+	 * Should initiate a scan of the device list, ignoring ignorable
+	 * ports. Scan is by name, new devices are registered.
+	 */
+	private void refreshDeviceList(){
+		//TODO: Implement
 	}
 	
 	/* gestureAPI */
-
 
 	@Override
 	public String[] getDevices() {
 		// TODO Change for multiple devices
 		String[] s = {"default"}; 
 		return s;
-	}
-
-
-	@Override
-	public String getName(int deviceID) {
-		// TODO Change for multiple devices
-		return "default";
 	}
 
 

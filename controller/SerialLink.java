@@ -5,6 +5,7 @@ import processing.core.PApplet;
 import processing.serial.*;
 
 public class SerialLink{
+	
 	PApplet parent;
 	int SerialPortNumber=2;
 	int portSelected=0;
@@ -45,7 +46,7 @@ public class SerialLink{
 	int NumOfSerialBytes=8;                              // The size of the buffer array
 	int[] serialInArray = new int[NumOfSerialBytes];     // Buffer array
 	int serialCount = 0;                                 // A count of how many bytes received
-	int xMSB, xLSB, yMSB, yLSB;		                // Bytes of data
+	int xMSB, xLSB, yMSB, yLSB;		                	// Most significant bit, least significant bit.
 
 	Serial myPort;        // The serial port object
 
@@ -63,23 +64,23 @@ public class SerialLink{
 	 * selection of the speed, the serial port and clearing the serial
 	 * port buffer.  
 	 */
-	void serialPortSetup() {
-
-		portName= Serial.list()[portSelected];
+	public void serialPortSetup() {
+		
 		ArrayOfPorts=Serial.list();
-		parent.println(ArrayOfPorts);
+		portName= ArrayOfPorts[portSelected];
 		myPort = new Serial(parent, portName, 115200);
 
 		try {
-			wait(50);
+			//replacing the delay(50) command in processing.
+			wait(50); //TODO change this, it isn't multithreaded or healthy.
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}		
 		myPort.clear(); 
 		myPort.buffer(20);
 	}
-
-
+	
+	
 	/**
 	 * serialEvent will be called when something is sent to the 
 	 * serial port being used.
@@ -97,7 +98,7 @@ public class SerialLink{
 				serialCount=0;
 			};
 			if (inByte>255) {
-				parent.println(" inByte = "+inByte);    
+				parent.println(" inByte = "+inByte); //TODO fix to ERROR behavior without calling parents.    
 				parent.exit();
 			}
 
@@ -113,12 +114,11 @@ public class SerialLink{
 				totalReceived++;
 				// Checksum 
 				int Checksum=0;
-				//    Checksum = (Command + yMSB + yLSB + xMSB + xLSB + zeroByte)%255;
 				for (int x=0; x<serialInArray.length-1; x++) {
 					Checksum=Checksum+serialInArray[x];
 				}
 
-				Checksum=Checksum%255;
+				Checksum = Checksum % 255;
 				// Checksum function
 				if (Checksum==serialInArray[serialInArray.length-1]) {
 					error = false;
@@ -134,8 +134,6 @@ public class SerialLink{
 			}
 
 			if (!error) {
-
-
 				int zeroByte = serialInArray[6];
 
 				xLSB = serialInArray[3];

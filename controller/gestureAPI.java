@@ -8,11 +8,6 @@ public interface gestureAPI {
 	 */
 	public String[] getDevices();
 	
-	/**
-	 * 
-	 * @return The designated device name. Should default to port name.
-	 */
-	public String getName(int deviceID);
 	
 	/**
 	 *  
