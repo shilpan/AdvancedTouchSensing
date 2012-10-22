@@ -425,7 +425,6 @@ class Graph extends PApplet
     }
   }
 
-
   void smoothLine(float[] x, float[] y, float[] z, float[] a ) {
     GraphColor=color(188, 53, 53);
     smoothLine(x, y);

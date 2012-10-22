@@ -171,5 +171,4 @@ public class GraphMain extends PApplet implements gestureAPI {
 		return 0;
 	}
 
-
 }

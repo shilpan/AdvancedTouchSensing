@@ -228,5 +228,4 @@ public class SerialLink{
 		parent.redraw();  
 	}
 
-
 }

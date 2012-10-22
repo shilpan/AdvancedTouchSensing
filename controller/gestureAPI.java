@@ -34,3 +34,4 @@ public interface gestureAPI {
 	public float getDelta(int deviceID);
 	
 }
+
